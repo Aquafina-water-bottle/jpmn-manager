@@ -14,3 +14,5 @@ Additionally, you cannot build the note with the add-on, because
 building the note requires various external dependencies that does not come
 with Anki.
 
+In general, if you're familiar with basic command line,
+it is recommended to use the scripts directly instead of using this add-on.

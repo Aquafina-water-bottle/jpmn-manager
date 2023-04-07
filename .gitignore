@@ -353,3 +353,12 @@ backup/
 .nvimrc
 .python-version
 .ccls-cache/
+
+
+# jp-mining-note source
+tools/
+data/
+jp-mining-note/
+media/
+all_versions/
+version.txt
