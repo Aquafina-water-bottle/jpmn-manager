@@ -63,9 +63,8 @@ class ConfirmUpdateDialog(QDialog):
         # vl: vertical layout
         vl = QVBoxLayout()
         warning_msg = ("WARNING:\n"
-                       "This will override any changes you made to your template!\n"
-                       "Please make a backup of your collection before continuing.\n"
-                       "If you have not made a backup, please press 'cancel'.")
+                       "Updating will override any changes you made to jp-mining-note!\n"
+                       "Please make a backup of your collection before continuing.")
         vl.addWidget(QLabel(warning_msg))
         vl.addWidget(self._button_box)
         self.setLayout(vl)
@@ -75,6 +74,7 @@ class ConfirmUpdateDialog(QDialog):
 
     def accept(self) -> None:
         # TODO actually update the note?
+        #install(update=True)
         return super().accept()
 
 
