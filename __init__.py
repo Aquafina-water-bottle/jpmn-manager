@@ -6,7 +6,7 @@ from typing import Callable
 
 from aqt import mw, gui_hooks
 from aqt.qt import *
-from aqt.utils import showInfo
+from aqt.utils import show_info, ask_user, ask_user_dialog
 from aqt.operations import QueryOp
 
 # https://stackoverflow.com/a/11158224
@@ -39,7 +39,7 @@ def install(update=False):
 
     def install_success():
         msg = f"Successfully {'updated' if update else 'installed'} jp-mining-note!"
-        showInfo(msg)
+        show_info(msg)
 
     op = QueryOp(
         parent=mw,
@@ -52,30 +52,19 @@ def install(update=False):
     op.with_progress(msg).run_in_background()
 
 
-class ConfirmUpdateDialog(QDialog):
-    def __init__(self, *args):
-        super().__init__(*args)
-        self._button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        self._setup()
-        self.exec()
+def confirm_update_warning():
+    warning_msg = ("Updating will override any changes you made to jp-mining-note! "
+                   "Please make a backup of your collection before continuing. "
+                   "If you already made a backup and are fine with losing any changes, "
+                   "press 'OK' to update. Otherwise, please press 'cancel'.")
 
-    def _setup(self):
-        # vl: vertical layout
-        vl = QVBoxLayout()
-        warning_msg = ("WARNING:\n"
-                       "Updating will override any changes you made to jp-mining-note!\n"
-                       "Please make a backup of your collection before continuing.")
-        vl.addWidget(QLabel(warning_msg))
-        vl.addWidget(self._button_box)
-        self.setLayout(vl)
+    buttons = [QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Cancel]
 
-        qconnect(self._button_box.accepted, self.accept)
-        qconnect(self._button_box.rejected, self.reject)
+    def callback(idx: int):
+        if idx == 0: # okay
+            pass
 
-    def accept(self) -> None:
-        # TODO actually update the note?
-        #install(update=True)
-        return super().accept()
+    ask_user_dialog(warning_msg, callback, buttons=buttons, default_button=1)
 
 
 def init_gui():
@@ -86,7 +75,9 @@ def init_gui():
     menu.addAction(install_action)
 
     update_action = QAction("Update jp-mining-note", mw)
-    qconnect(update_action.triggered, lambda: ConfirmUpdateDialog(mw))
+    qconnect(update_action.triggered, lambda: confirm_update_warning())
+
+
     menu.addAction(update_action)
 
 
