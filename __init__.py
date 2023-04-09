@@ -22,8 +22,46 @@ sys.path.append(os.path.join(base_folder, "tools"))
 import utils as jpmn_utils
 import install as jpmn_install
 import batch as jpmn_batch
+import version as jpmn_version
 
 SETUP_CHANGES_URL = "https://aquafina-water-bottle.github.io/jp-mining-note/setupchanges/"
+
+
+def check_updates():
+    script_folder = os.path.dirname(os.path.abspath(__file__))
+    version_file_path = os.path.join(script_folder, "version.txt")
+
+    with open(version_file_path) as f:
+        latest = jpmn_version.Version.from_str(f.read())
+    post_message = {}
+    CURR_KEY = "current"
+
+    def batch_op():
+        # NOTE: This is put in a QueryOp call because without one, Anki seems to deadlock itself.
+        # I'm guessing it has to do with how we remain in the main thread, but Anki-Connect
+        # itself runs in the main thread.
+        post_message[CURR_KEY] = jpmn_version.Version.from_str(jpmn_utils.get_version_from_anki("JP Mining Note"))
+
+    def batch_success():
+        if CURR_KEY in post_message:
+            curr = post_message[CURR_KEY]
+            if latest > curr:
+                msg = f"An update is available!\nCurrent version: {curr}\nLatest version: {latest}"
+            else:
+                msg = f"jp-mining-note is up to date. No update is necessary."
+        else:
+            msg = "An unknown error occured."
+        show_info(msg)
+
+    op = QueryOp(
+        parent=mw,
+        op=lambda _: batch_op(),
+        success=lambda _: batch_success(),
+    )
+
+    msg = f"Querying Anki for the jp-mining-note version..."
+    op.with_progress(msg).run_in_background()
+
 
 
 def get_args(raw_args: str, *args: Callable[[argparse.ArgumentParser], None]) -> argparse.Namespace:
@@ -40,8 +78,6 @@ def get_args(raw_args: str, *args: Callable[[argparse.ArgumentParser], None]) ->
 
 
 def install(update=False, args_str: str = ""):
-    # TODO: check if it's already installed, etc.
-
     # some crazy hack because install_op doesn't seem to preserve post_message
     # if we just set post_message = ...
     post_message = {}
@@ -152,6 +188,10 @@ def run_batch():
 
 def init_gui():
     menu = mw.form.menuTools.addMenu("JPMN Manager")
+
+    check_update_action = QAction("Check for note updates", mw)
+    qconnect(check_update_action.triggered, lambda: check_updates())
+    menu.addAction(check_update_action)
 
     install_action = QAction("Install jp-mining-note", mw)
     qconnect(install_action.triggered, lambda: install())
