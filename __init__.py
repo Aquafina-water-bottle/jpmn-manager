@@ -49,7 +49,7 @@ def check_updates():
     def batch_success():
         if CURR_KEY in post_message:
             curr = post_message[CURR_KEY]
-            if latest > curr:
+            if latest.cmp(curr, check_prerelease=True) == 1: # latest > curr
                 msg = f"An update is available!\nCurrent version: {curr}\nLatest version: {latest}"
             else:
                 msg = f"jp-mining-note is up to date. No update is necessary."
