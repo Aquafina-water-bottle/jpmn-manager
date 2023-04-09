@@ -28,6 +28,10 @@ SETUP_CHANGES_URL = "https://aquafina-water-bottle.github.io/jp-mining-note/setu
 
 
 def check_updates():
+    """
+    compares version in template to version.txt
+    """
+
     script_folder = os.path.dirname(os.path.abspath(__file__))
     version_file_path = os.path.join(script_folder, "version.txt")
 
@@ -71,13 +75,17 @@ def get_args(raw_args: str, *args: Callable[[argparse.ArgumentParser], None]) ->
 
     try:
         # we cannot rely on ArgumentParser(exit_on_error=False) to always throw an error
-        # instead of an exception, so we use this gross hack to ensure Anki doesn't shut down...
+        # instead of exiting, so we use this gross hack to ensure Anki doesn't shut down...
         return parser.parse_args(args=shlex.split(raw_args))
     except SystemExit:
         raise RuntimeError("Error in arguments")
 
 
 def install(update=False, args_str: str = ""):
+    """
+    installs or updates the note
+    """
+
     # some crazy hack because install_op doesn't seem to preserve post_message
     # if we just set post_message = ...
     post_message = {}
@@ -134,6 +142,10 @@ def confirm_update_warning():
 
 
 def run_batch():
+    """
+    runs batch.py function
+    """
+
     (args_str, ret) = getText("Enter the batch command below.")
     if ret == 0: # user cancelled
         return
@@ -141,7 +153,7 @@ def run_batch():
 
     try:
         # we cannot rely on ArgumentParser(exit_on_error=False) to always throw an error
-        # instead of an exception, so we use this gross hack to ensure Anki doesn't shut down...
+        # instead of exiting, so we use this gross hack to ensure Anki doesn't shut down...
         args = jpmn_batch.get_args(jpmn_batch.PUBLIC_FUNCTIONS_ANKI, args=args_arr)
     except SystemExit:
         raise RuntimeError("Error in arguments")
