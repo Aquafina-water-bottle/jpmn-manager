@@ -13,19 +13,12 @@ TODO link to documentation
 ## What this add-on does NOT do
 The scope of this add-on is very small, so many features are not supported.
 
-* This add-on does NOT automatically update your note.
+* This add-on does NOT (and will never) automatically update your note when there are new updates.
+    You will have to manually navigate to "Update jp-mining-note" to update your note.
 * This add-on does NOT notify the user when there are new updates.
 * You CANNOT build the note with the add-on, because
     building the note requires various external dependencies that does not come
     with Anki.
 
 ## TODO
-- get updating working
-    - disable text input (no warn?)
-    - get permalinks / text output for user changes?
-    - is there a dedicated warning QT thing?
-    - should message be in a QLabel? is there a standard text box?
-- option to run installation script with custom flags
-    - https://docs.python.org/3/library/shlex.html#shlex.shlex.whitespace_split
-- option to run batch script with custom flags
 - upload to ankiweb
