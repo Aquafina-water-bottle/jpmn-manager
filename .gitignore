@@ -363,3 +363,5 @@ media/
 all_versions/
 version.txt
 meta.json
+*.ankiaddon
+user_files/backup/

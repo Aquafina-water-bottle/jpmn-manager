@@ -48,6 +48,8 @@ def install(update=False, args_str: str = ""):
     KEY = "A"
 
     args = get_args(args_str, jpmn_utils.add_args, jpmn_install.add_args)
+    # because backup/ will be deleted on every addon update
+    args.backup_folder = os.path.join("user_files", "backup")
     if update:
         args.update = True
         args.dev_never_warn = True # prevents input() from being ran
