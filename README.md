@@ -10,7 +10,9 @@ JPMN Manager is a simple Anki add-on that provides a user interface for installi
 
 ## Download
 
-> **warning**: CURRENTLY WIP. DO NOT DOWNLOAD THIS ADDON UNLESS YOU KNOW WHAT YOU ARE DOING.
+> **Warning**:
+>
+> CURRENTLY WIP. DO NOT DOWNLOAD THIS ADDON UNLESS YOU KNOW WHAT YOU ARE DOING.
 
 There are two versions of JPMN Manager you can download.
 
