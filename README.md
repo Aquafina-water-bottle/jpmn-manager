@@ -8,8 +8,36 @@ JPMN Manager is a simple Anki add-on that provides a user interface for installi
 > [python scripts](https://github.com/Aquafina-water-bottle/jp-mining-note/tree/master/tools)
 > directly instead of using this add-on.
 
-## Usage
-TODO link to documentation
+## Download
+
+> **warning**: CURRENTLY WIP. DO NOT DOWNLOAD THIS ADDON UNLESS YOU KNOW WHAT YOU ARE DOING.
+
+There are two versions of JPMN Manager you can download.
+
+1. Stable releases only: `TODO`
+
+    This is the standard version, and the recommended version if you don't know what version to use.
+
+1. With prereleases: `1732829476` ([AnkiWeb link](https://ankiweb.net/shared/info/1732829476))
+
+    This is the version you want to use if you want to test releases before its
+    official stable release, and have the latest features possible.
+    However, **expect more bugs**.
+
+    If you are looking to help out with jp-mining-note,
+    I recommend using this version, and
+    [reporting any issues you find](https://aquafina-water-bottle.github.io/jp-mining-note/faq/#contact-info).
+    Any and all help is greatly appreciated!
+
+
+To download JPMN Manager:
+
+* Within Anki, navigate to `Tools` →  `Add-ons` →  `Get Add-ons...`
+* Copy and paste the desired numeric code into the window.
+
+    ![image](./img/addons_install.png)
+
+
 
 ## What this add-on does NOT do
 The scope of this add-on is very small, so many features are not supported.
@@ -20,6 +48,3 @@ The scope of this add-on is very small, so many features are not supported.
 * You CANNOT build the note with the add-on, because
     building the note requires various external dependencies that does not come
     with Anki.
-
-## TODO
-- upload to ankiweb
