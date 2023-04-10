@@ -35,7 +35,7 @@ There are two versions of JPMN Manager you can download.
 To download JPMN Manager:
 
 * Within Anki, navigate to `Tools` →  `Add-ons` →  `Get Add-ons...`
-* Copy and paste the desired numeric code into the window.
+* Copy and paste the desired add-on code into the window.
 
     ![image](./img/addons_install.png)
 
