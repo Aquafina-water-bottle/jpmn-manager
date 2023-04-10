@@ -2,7 +2,7 @@
 
 JPMN Manager is a simple Anki add-on that manages
 [**jp-mining-note**](https://github.com/Aquafina-water-bottle/jp-mining-note/).
-This provides an easy way to instal and update the note,
+This provides an easy way to install and update the note,
 as well as various a few quality of life utilities for using the note
 and transferring between notes.
 
