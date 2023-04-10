@@ -32,6 +32,11 @@ There are two versions of JPMN Manager you can download.
     Any and all help is greatly appreciated!
 
 
+You should not have both versions installed at the same time.
+If you want to switch between JPMN Manager versions, simply uninstall (or disable) the
+undesired version, and install the desired version.
+
+
 To download JPMN Manager:
 
 * Within Anki, navigate to `Tools` →  `Add-ons` →  `Get Add-ons...`
