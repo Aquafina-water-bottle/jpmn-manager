@@ -6,6 +6,8 @@ This provides an easy way to install and update the note,
 as well as various a few quality of life utilities for using the note
 and transferring between notes.
 
+This add-on is entirely optional, and will never be required
+to use jp-mining-note.
 
 
 ## Download
