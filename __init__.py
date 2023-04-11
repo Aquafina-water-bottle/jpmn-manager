@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+import time
 import shlex
 import inspect
 import argparse
@@ -9,7 +10,11 @@ from typing import Callable, Optional
 
 from aqt import mw, gui_hooks
 from aqt.qt import *
-from aqt.utils import show_info, ask_user_dialog, getText
+
+#from aqt.utils import show_info, ask_user_dialog # TODO: make compatible with 2.1.54+
+from aqt.utils import showInfo, askUserDialog
+from aqt.utils import getText
+
 from aqt.operations import QueryOp
 
 # https://stackoverflow.com/a/11158224
@@ -40,13 +45,13 @@ def check_updates():
     post_message = {}
     CURR_KEY = "current"
 
-    def batch_op():
+    def op_func():
         # NOTE: This is put in a QueryOp call because without one, Anki seems to deadlock itself.
         # I'm guessing it has to do with how we remain in the main thread, but Anki-Connect
         # itself runs in the main thread.
         post_message[CURR_KEY] = jpmn_version.Version.from_str(jpmn_utils.get_version_from_anki("JP Mining Note"))
 
-    def batch_success():
+    def success_func():
         if CURR_KEY in post_message:
             curr = post_message[CURR_KEY]
             if latest.cmp(curr, check_prerelease=True) == 1: # latest > curr
@@ -55,12 +60,12 @@ def check_updates():
                 msg = f"jp-mining-note is up to date. No update is necessary."
         else:
             msg = "An unknown error occured."
-        show_info(msg)
+        showInfo(msg)
 
     op = QueryOp(
         parent=mw,
-        op=lambda _: batch_op(),
-        success=lambda _: batch_success(),
+        op=lambda _: op_func(),
+        success=lambda _: success_func(),
     )
 
     msg = f"Querying Anki for the jp-mining-note version..."
@@ -107,7 +112,8 @@ def install(update=False, args_str: str = ""):
         if post_message[KEY] is not None:
             #msg += "\n\n" + post_message[KEY]
             msg += "<br><br>" + f'You\'re not finished yet! See the <a href="{SETUP_CHANGES_URL}">Setup Changes</a> page to update everything else.'
-        show_info(msg, textFormat=Qt.TextFormat.RichText) # RichText to make html work
+        #show_info(msg, textFormat=Qt.TextFormat.RichText) # RichText to make html work
+        showInfo(msg, textFormat="rich") # RichText to make html work
 
     op = QueryOp(
         parent=mw,
@@ -127,18 +133,33 @@ def install_custom_args():
 
 
 def confirm_update_warning():
+    #warning_msg = ("Updating will override any changes you made to jp-mining-note! "
+    #               "Please make a backup of your collection before continuing. "
+    #               "If you already made a backup and are fine with losing any changes, "
+    #               "press 'Ok'. Otherwise, please press 'cancel'.")
+
+    #buttons = [QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Cancel]
+
+    #def callback(idx: int):
+    #    if idx == 0: # okay
+    #        install(update=True)
+
+    #ask_user_dialog(warning_msg, callback, buttons=buttons, default_button=1)
+
+
+    CANCEL = "Cancel"
+    UPDATE = "Update!"
     warning_msg = ("Updating will override any changes you made to jp-mining-note! "
                    "Please make a backup of your collection before continuing. "
                    "If you already made a backup and are fine with losing any changes, "
-                   "press 'OK' to update. Otherwise, please press 'cancel'.")
+                   f"press '{UPDATE}'. Otherwise, please press 'cancel'.")
 
-    buttons = [QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Cancel]
-
-    def callback(idx: int):
-        if idx == 0: # okay
-            install(update=True)
-
-    ask_user_dialog(warning_msg, callback, buttons=buttons, default_button=1)
+    buttons = [CANCEL, UPDATE]
+    dialog = askUserDialog(warning_msg, buttons=buttons)
+    dialog.setDefault(1)
+    result = dialog.run()
+    if result == UPDATE:
+        install(update=True)
 
 
 def run_batch():
@@ -167,6 +188,7 @@ def run_batch():
     if "func" in args:
         def batch_op():
             # code copied from batch main()
+            time.sleep(1) # to ensure the popup is shown properly?
             try:
                 func_args = vars(args)
                 func = func_args.pop("func")
@@ -183,7 +205,7 @@ def run_batch():
                     result = post_message[RESULT_KEY]
                     if result is not None:
                         msg += "\n\n" + post_message[RESULT_KEY]
-            show_info(msg)
+            showInfo(msg)
 
         op = QueryOp(
             parent=mw,
@@ -195,7 +217,7 @@ def run_batch():
         op.with_progress(msg).run_in_background()
 
     else:
-        show_info("Cannot find batch function")
+        showInfo("Cannot find batch function")
 
 
 def init_gui():
