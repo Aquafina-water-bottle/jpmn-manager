@@ -101,8 +101,9 @@ def install(update=False, args_str: str = ""):
     args.backup_folder = os.path.join("user_files", "backup")
     if update:
         args.update = True
-        args.dev_never_warn = True # prevents input() from being ran
-        args.dev_return_notes = True
+
+    args.dev_never_warn = True # prevents input() from being ran
+    args.dev_raise_anki_error = True # raises visible errors for Anki users to see, instead of silently returning
 
     def install_op():
         post_message[KEY] = jpmn_install.main(args)
