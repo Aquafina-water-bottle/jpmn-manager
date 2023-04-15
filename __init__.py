@@ -29,7 +29,10 @@ import install as jpmn_install
 import batch as jpmn_batch
 import version as jpmn_version
 
-SETUP_CHANGES_URL = "https://aquafina-water-bottle.github.io/jp-mining-note/setupchanges/"
+
+# TODO change to not be using prerelease version
+#SETUP_CHANGES_URL = "https://aquafina-water-bottle.github.io/jp-mining-note/setupchanges/"
+SETUP_CHANGES_URL = "https://aquafina-water-bottle.github.io/jp-mining-note-prerelease/setupchanges/"
 
 
 def check_updates():
