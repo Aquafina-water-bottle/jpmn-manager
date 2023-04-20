@@ -365,3 +365,4 @@ version.txt
 meta.json
 *.ankiaddon
 user_files/backup/
+zipped/
