@@ -49,7 +49,6 @@ The scope of this add-on is very small, so many features are not supported.
 
 * This add-on does NOT (and will never) automatically update your note when there are new updates.
     You will have to manually navigate to "Update jp-mining-note" to update your note.
-* This add-on does NOT notify the user when there are new updates. This may be implemented in the future.
 * You CANNOT build the note with the add-on, because
     building the note requires various external dependencies that does not come
     with Anki.
