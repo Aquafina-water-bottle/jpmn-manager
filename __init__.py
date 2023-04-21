@@ -299,7 +299,7 @@ def check_updates_popup(ignore_until_ver: jpmn_utils.Version | None):
 
             OKAY = "Okay"
             SKIP = "Skip update"
-            NEVER_NOTIFY = "Never notify me again"
+            NEVER_NOTIFY = "Never notify again"
             buttons = [OKAY, SKIP, NEVER_NOTIFY]
             bd = ButtonedDialog(msg, buttons, mw, title="JPMN Manager")
             bd.setIcon(QMessageBox.Icon.Information)
