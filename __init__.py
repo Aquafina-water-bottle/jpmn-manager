@@ -295,7 +295,7 @@ def check_updates_popup(ignore_until_ver: jpmn_utils.Version | None):
             msg = f"(startup) A jp-mining-note update is available! However, this update is ignored by the user.\nIgnored until: {ignore_until_ver}\nCurrent version: {curr}\nLatest version: {latest}"
             print(msg)
         else:
-            msg = f'An update to jp-mining-note is available!<br>- Current version: {curr}<br>- Latest version: {latest}<br>See how to update the note <a href="{UPDATING_URL}">here</a>.'
+            msg = f'An update to jp-mining-note is available!<br>- Current version: {curr}<br>- Latest version: {latest}<br>Selecting \'Okay\' will not update the note. See how to update the note <a href="{UPDATING_URL}">here</a>.'
 
             OKAY = "Okay"
             SKIP = "Skip update"
