@@ -7,8 +7,15 @@ It provides many quality of life features for using jp-mining-note, such as:
 - Notifies you whenever a new update has released
 - Exposes utilities to assist with transferring other note types into jp-mining-note, as well as batch edit existing notes
 
-Using JPMN Manager is entirely optional,
-and will *never* be required to use jp-mining-note.
+
+## Non-goals
+* Using JPMN Manager is entirely optional,
+    and will *never* be required to use jp-mining-note.
+* This add-on does NOT (and will never) automatically update your note when there are new updates.
+    You will have to manually navigate to "Update jp-mining-note" to update your note.
+* You CANNOT build the note with the add-on, because
+    building the note requires various external dependencies that does not come
+    with Anki.
 
 
 ## Download
@@ -44,12 +51,3 @@ To download JPMN Manager:
     ![image](./img/addons_install.png)
 
 
-
-## What this add-on does NOT do
-The scope of this add-on is very small, so many features are not supported.
-
-* This add-on does NOT (and will never) automatically update your note when there are new updates.
-    You will have to manually navigate to "Update jp-mining-note" to update your note.
-* You CANNOT build the note with the add-on, because
-    building the note requires various external dependencies that does not come
-    with Anki.
