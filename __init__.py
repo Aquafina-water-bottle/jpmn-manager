@@ -51,6 +51,14 @@ def _get_collection():
     return collection
 
 
+def _get_database():
+    database = _get_collection().db
+    if database is None:
+        raise Exception('database is not available')
+
+    return database
+
+
 def _get_version_from_anki(error=False, fallback_to_ankiconnect=True) -> jpmn_version.Version | None:
     """
     gets jpmn version from Anki, if installed.
@@ -250,6 +258,37 @@ def run_batch():
         showInfo("Cannot find batch function")
 
 
+def new_due_query():
+    # TODO: how to get new cards from options?
+    # TODO: how to only get "JP Mining Note" cards????
+    new_cards_limit = 30 # TODO temporary integer
+    db = _get_database()
+    # https://github.com/ankidroid/Anki-Android/wiki/Database-Structure#cards
+    # type=0: new (not learning/relearning)
+    # queue=0: new (not suspended)
+    QUERY = "select id, due from cards where type=0 and queue=0"
+    db.all(QUERY)
+
+    def batch_op():
+        return db.all(QUERY)
+
+    def batch_success(result):
+        new_cards = sorted(result, key=lambda x: x[1])[0:new_cards_limit]
+        new_cards_ids = [x[1] for x in new_cards]
+        print(new_cards)
+        showInfo(",".join(str(x) for x in new_cards_ids))
+
+    op = QueryOp(
+        parent=mw,
+        op=lambda _: batch_op(),
+        success=lambda result: batch_success(result),
+    )
+
+    msg = f"Running batch script..."
+    op.with_progress(msg).run_in_background()
+
+
+
 def init_gui():
     menu = mw.form.menuTools.addMenu("JPMN Manager")
 
@@ -272,6 +311,10 @@ def init_gui():
     batch_action = QAction("Run batch command", mw)
     qconnect(batch_action.triggered, lambda: run_batch())
     menu.addAction(batch_action)
+
+    #new_due_query_action = QAction("(cache.js) Get new due cards", mw)
+    #qconnect(new_due_query_action.triggered, lambda: new_due_query())
+    #menu.addAction(new_due_query_action)
 
 
 def check_updates_popup(ignore_until_ver: jpmn_utils.Version | None):
