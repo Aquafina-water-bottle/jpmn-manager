@@ -194,15 +194,19 @@ def confirm_update_warning():
 
 
     CANCEL = "Cancel"
-    UPDATE = "Update!"
-    warning_msg = ("Updating will override any changes you made to jp-mining-note! "
-                   "Please make a backup of your collection before continuing. "
-                   "If you already made a backup and are fine with losing any changes, "
-                   f"press '{UPDATE}'. Otherwise, please press 'cancel'.")
+    UPDATE = "I backed up my collection. Update!"
+    warning_msg = inspect.cleandoc(f"""
+       Updating will override any changes you made to jp-mining-note!
+       Even if you have not made any changes to jp-mining-note,
+       <a href="https://aquafina-water-bottle.github.io/jp-mining-note-prerelease/faq/#how-do-i-backup-my-anki-data">please make a backup of your collection</a> before continuing.
+       If you already made a backup and are fine with losing any changes,
+       press 'Update'. Otherwise, please press 'Cancel'.
+       """)
 
     buttons = [UPDATE, CANCEL]
     dialog = askUserDialog(warning_msg, buttons=buttons)
     dialog.setDefault(0)
+    dialog.setTextFormat(Qt.TextFormat.RichText)
     result = dialog.run()
     if result == UPDATE:
         install(update=True)
@@ -229,20 +233,20 @@ def run_batch():
         def batch_op():
             # code copied from batch main()
             time.sleep(1) # to ensure the popup is shown properly?
-            try:
-                func_args = vars(args)
-                func = func_args.pop("func")
-                return func(**func_args)
-            except Exception as e:
-                return e
+            func_args = vars(args)
+            func = func_args.pop("func")
+            return func(**func_args)
+            #try:
+            #    func_args = vars(args)
+            #    func = func_args.pop("func")
+            #    return func(**func_args)
+            #except Exception as e:
+            #    return e
 
         def batch_success(result):
-            if isinstance(result, Exception):
-                msg = str(result)
-            else:
-                msg = "Successfully ran batch command!"
-                if result is not None:
-                    msg += "\n\n" + result
+            msg = "Successfully ran batch command!"
+            if result is not None:
+                msg += "\n\nBatch command result:\n" + result
             showInfo(msg)
 
         op = QueryOp(
