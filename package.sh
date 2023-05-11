@@ -12,3 +12,4 @@ if [[ "$2" == "--dev" ]]; then
     # update zip with manifest
     zip -r ./jpmn-manager.ankiaddon manifest.json
 fi
+cp ./jpmn-manager.ankiaddon "./zipped/$1_jpmn-manager.ankiaddon"
