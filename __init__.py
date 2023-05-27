@@ -3,24 +3,21 @@ from __future__ import annotations
 import os
 import sys
 import time
+import json
 import shlex
 import inspect
 import argparse
-from typing import Callable
+from typing import Callable, Any
 
 from aqt import mw, gui_hooks
-from aqt.qt import (
-    Qt,
-    QMessageBox,
-    QCheckBox,
-    qconnect,
-    QAction
-)
+from aqt.qt import Qt, QMessageBox, QCheckBox, qconnect, QAction
 
-#from aqt.utils import show_info, ask_user_dialog # TODO: use these when 2.1.60 becomes the min supported version
+# from aqt.utils import show_info, ask_user_dialog # TODO: use these when 2.1.60 becomes the min supported version
 from aqt.utils import showInfo, askUserDialog, getText, ButtonedDialog, tooltip
 
 from aqt.operations import QueryOp
+
+from .kanji import get_kanji_data, KanjiData
 
 # https://stackoverflow.com/a/11158224
 script_file = inspect.getfile(inspect.currentframe())
@@ -36,17 +33,19 @@ import version as jpmn_version
 
 
 # TODO change to not be using prerelease version
-#SETUP_CHANGES_URL = "https://aquafina-water-bottle.github.io/jp-mining-note/setupchanges/"
-SETUP_CHANGES_URL = "https://aquafina-water-bottle.github.io/jp-mining-note-prerelease/setupchanges/"
-UPDATING_URL = "https://aquafina-water-bottle.github.io/jp-mining-note-prerelease/updating/"
-
-
+# SETUP_CHANGES_URL = "https://aquafina-water-bottle.github.io/jp-mining-note/setupchanges/"
+SETUP_CHANGES_URL = (
+    "https://aquafina-water-bottle.github.io/jp-mining-note-prerelease/setupchanges/"
+)
+UPDATING_URL = (
+    "https://aquafina-water-bottle.github.io/jp-mining-note-prerelease/updating/"
+)
 
 
 def _get_collection():
     collection = mw.col
     if collection is None:
-        raise Exception('collection is not available')
+        raise Exception("collection is not available")
 
     return collection
 
@@ -54,12 +53,14 @@ def _get_collection():
 def _get_database():
     database = _get_collection().db
     if database is None:
-        raise Exception('database is not available')
+        raise Exception("database is not available")
 
     return database
 
 
-def _get_version_from_anki(error=False, fallback_to_ankiconnect=True) -> jpmn_version.Version | None:
+def _get_version_from_anki(
+    error=False, fallback_to_ankiconnect=True
+) -> jpmn_version.Version | None:
     """
     gets jpmn version from Anki, if installed.
     """
@@ -69,13 +70,15 @@ def _get_version_from_anki(error=False, fallback_to_ankiconnect=True) -> jpmn_ve
     model = _get_collection().models.byName(MODEL_NAME)
     if model is None:
         if error:
-            raise Exception('model was not found: {}'.format(MODEL_NAME))
+            raise Exception("model was not found: {}".format(MODEL_NAME))
         return None
 
     # checks all sides before erroring
-    for template in model['tmpls']:
-        for side in [template['qfmt'], template['afmt']]: # front, back
-            jpmn_version_str = jpmn_utils.get_version_from_template_side(side, error=error)
+    for template in model["tmpls"]:
+        for side in [template["qfmt"], template["afmt"]]:  # front, back
+            jpmn_version_str = jpmn_utils.get_version_from_template_side(
+                side, error=error
+            )
             if jpmn_version_str is not None:
                 return jpmn_version.Version.from_str(jpmn_version_str)
 
@@ -84,7 +87,7 @@ def _get_version_from_anki(error=False, fallback_to_ankiconnect=True) -> jpmn_ve
         jpmn_ver_anki = jpmn_utils.get_version_from_anki(MODEL_NAME)
         return jpmn_version.Version.from_str(jpmn_ver_anki)
 
-    return None # explicit return
+    return None  # explicit return
 
 
 def check_updates():
@@ -107,7 +110,7 @@ def check_updates():
     def success_func(curr: jpmn_version.Version):
         if curr is None:
             msg = f"Could not find the jp-mining-note version. Is the note installed?"
-        elif latest.cmp(curr, check_prerelease=True) == 1: # latest > curr
+        elif latest.cmp(curr, check_prerelease=True) == 1:  # latest > curr
             msg = f'An update to jp-mining-note is available!<br>- Current version: {curr}<br>- Latest version: {latest}<br>See how to update the note <a href="{UPDATING_URL}">here</a>.'
         else:
             msg = f"jp-mining-note is up to date. No update is necessary."
@@ -123,8 +126,9 @@ def check_updates():
     op.with_progress(msg).run_in_background()
 
 
-
-def get_args(raw_args: str, *args: Callable[[argparse.ArgumentParser], None]) -> argparse.Namespace:
+def get_args(
+    raw_args: str, *args: Callable[[argparse.ArgumentParser], None]
+) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     for add_args_func in args:
         add_args_func(parser)
@@ -148,8 +152,8 @@ def install(update=False, args_str: str = ""):
     if update:
         args.update = True
 
-    args.dev_never_warn = True # prevents input() from being ran
-    args.dev_raise_anki_error = True # raises visible errors for Anki users to see, instead of silently returning
+    args.dev_never_warn = True  # prevents input() from being ran
+    args.dev_raise_anki_error = True  # raises visible errors for Anki users to see, instead of silently returning
 
     def install_op():
         return jpmn_install.main(args)
@@ -157,9 +161,12 @@ def install(update=False, args_str: str = ""):
     def install_success(post_message):
         msg = f"Successfully {'updated' if update else 'installed'} jp-mining-note!"
         if post_message is not None:
-            msg += "<br><br>" + f'You\'re not finished yet! See the <a href="{SETUP_CHANGES_URL}">Setup Changes</a> page to update everything else.'
-        #show_info(msg, textFormat=Qt.TextFormat.RichText) # RichText to make html work
-        showInfo(msg, textFormat="rich") # RichText to make html work
+            msg += (
+                "<br><br>"
+                + f'You\'re not finished yet! See the <a href="{SETUP_CHANGES_URL}">Setup Changes</a> page to update everything else.'
+            )
+        # show_info(msg, textFormat=Qt.TextFormat.RichText) # RichText to make html work
+        showInfo(msg, textFormat="rich")  # RichText to make html work
 
     op = QueryOp(
         parent=mw,
@@ -173,35 +180,36 @@ def install(update=False, args_str: str = ""):
 
 def install_custom_args():
     (args_str, ret) = getText("Enter the installer arguments below.")
-    if ret == 0: # user cancelled
+    if ret == 0:  # user cancelled
         return
     install(args_str=args_str)
 
 
 def confirm_update_warning():
-    #warning_msg = ("Updating will override any changes you made to jp-mining-note! "
+    # warning_msg = ("Updating will override any changes you made to jp-mining-note! "
     #               "Please make a backup of your collection before continuing. "
     #               "If you already made a backup and are fine with losing any changes, "
     #               "press 'Ok'. Otherwise, please press 'cancel'.")
 
-    #buttons = [QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Cancel]
+    # buttons = [QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Cancel]
 
-    #def callback(idx: int):
+    # def callback(idx: int):
     #    if idx == 0: # okay
     #        install(update=True)
 
-    #ask_user_dialog(warning_msg, callback, buttons=buttons, default_button=1)
-
+    # ask_user_dialog(warning_msg, callback, buttons=buttons, default_button=1)
 
     CANCEL = "Cancel"
     UPDATE = "I backed up my collection. Update!"
-    warning_msg = inspect.cleandoc(f"""
+    warning_msg = inspect.cleandoc(
+        f"""
        Updating will override any changes you made to jp-mining-note!
        Even if you have not made any changes to jp-mining-note,
        <a href="https://aquafina-water-bottle.github.io/jp-mining-note-prerelease/faq/#how-do-i-backup-my-anki-data">please make a backup of your collection</a> before continuing.
        If you already made a backup and are fine with losing any changes,
        press 'Update'. Otherwise, please press 'Cancel'.
-       """)
+       """
+    )
 
     buttons = [UPDATE, CANCEL]
     dialog = askUserDialog(warning_msg, buttons=buttons)
@@ -218,7 +226,7 @@ def run_batch():
     """
 
     (args_str, ret) = getText("Enter the batch command below.")
-    if ret == 0: # user cancelled
+    if ret == 0:  # user cancelled
         return
     args_arr = shlex.split(args_str)
 
@@ -230,17 +238,18 @@ def run_batch():
         raise RuntimeError("Error in arguments")
 
     if "func" in args:
+
         def batch_op():
             # code copied from batch main()
-            time.sleep(1) # to ensure the popup is shown properly?
+            time.sleep(1)  # to ensure the popup is shown properly?
             func_args = vars(args)
             func = func_args.pop("func")
             return func(**func_args)
-            #try:
+            # try:
             #    func_args = vars(args)
             #    func = func_args.pop("func")
             #    return func(**func_args)
-            #except Exception as e:
+            # except Exception as e:
             #    return e
 
         def batch_success(result):
@@ -265,7 +274,7 @@ def run_batch():
 def new_due_query():
     # TODO: how to get new cards from options?
     # TODO: how to only get "JP Mining Note" cards????
-    new_cards_limit = 30 # TODO temporary integer
+    new_cards_limit = 30  # TODO temporary integer
     db = _get_database()
     # https://github.com/ankidroid/Anki-Android/wiki/Database-Structure#cards
     # type=0: new (not learning/relearning)
@@ -292,7 +301,6 @@ def new_due_query():
     op.with_progress(msg).run_in_background()
 
 
-
 def init_gui():
     menu = mw.form.menuTools.addMenu("JPMN Manager")
 
@@ -316,9 +324,9 @@ def init_gui():
     qconnect(batch_action.triggered, lambda: run_batch())
     menu.addAction(batch_action)
 
-    #new_due_query_action = QAction("(cache.js) Get new due cards", mw)
-    #qconnect(new_due_query_action.triggered, lambda: new_due_query())
-    #menu.addAction(new_due_query_action)
+    # new_due_query_action = QAction("(cache.js) Get new due cards", mw)
+    # qconnect(new_due_query_action.triggered, lambda: new_due_query())
+    # menu.addAction(new_due_query_action)
 
 
 def check_updates_popup(ignore_until_ver: jpmn_utils.Version | None):
@@ -335,14 +343,17 @@ def check_updates_popup(ignore_until_ver: jpmn_utils.Version | None):
     if curr is None:
         msg = "(startup) Could not find the jp-mining-note version. Is the note installed?"
         print(msg)
-    elif latest.cmp(curr, check_prerelease=True) == 1: # latest > curr
+    elif latest.cmp(curr, check_prerelease=True) == 1:  # latest > curr
         # check if we ignore this
         # we ignore the update if ignore_until_ver >= latest
-        if ignore_until_ver is not None and ignore_until_ver.cmp(latest, check_prerelease=True) >= 0: # ignore_until_ver >= current
+        if (
+            ignore_until_ver is not None
+            and ignore_until_ver.cmp(latest, check_prerelease=True) >= 0
+        ):  # ignore_until_ver >= current
             msg = f"(startup) A jp-mining-note update is available! However, this update is ignored by the user.\nIgnored until: {ignore_until_ver}\nCurrent version: {curr}\nLatest version: {latest}"
             print(msg)
         else:
-            msg = f'An update to jp-mining-note is available!<br>- Current version: {curr}<br>- Latest version: {latest}<br>Selecting \'Okay\' will not update the note. See how to update the note <a href="{UPDATING_URL}">here</a>.'
+            msg = f"An update to jp-mining-note is available!<br>- Current version: {curr}<br>- Latest version: {latest}<br>Selecting 'Okay' will not update the note. See how to update the note <a href=\"{UPDATING_URL}\">here</a>."
 
             OKAY = "Okay"
             SKIP = "Skip update"
@@ -372,7 +383,15 @@ def check_updates_popup(ignore_until_ver: jpmn_utils.Version | None):
         print(msg)
 
 
+optional_popup_attempt_shown = False
+
 def optional_popup():
+    # prevents this function from running more than once
+    global optional_popup_attempt_shown
+    if optional_popup_attempt_shown:
+        return
+    optional_popup_attempt_shown = True
+
     config = mw.addonManager.getConfig(__name__)
     check_update = config["check_update_on_startup"]
 
@@ -385,9 +404,39 @@ def optional_popup():
         check_updates_popup(ignore_until_ver)
 
 
+def pycmd_result_error(error: str | dict[str, Any]):
+    # similar format to Anki-Connect version 6+
+    return (True, json.dumps({"result": None, "error": error}))
+
+
+def pycmd_result_success(result: str | dict[str, Any]):
+    return (True, json.dumps({"result": result, "error": None}))
+
+
+def handle_pycmd_message(
+    handled: tuple[bool, Any], message: str, context: Any
+) -> tuple[bool, Any]:
+    # looks for message formatted as "JPMN#id#data"
+
+    if not message.startswith("JPMN#"):
+        return handled  # some other command, pass it on
+
+    # message starts with JPMN#, meaning this is our message!
+    try:
+        _, id, data = message.split("#", 2)
+        if id == "get-kanji-data":
+            # data should simply be a kanji here
+            kanji_data = get_kanji_data(data)
+            return pycmd_result_success(kanji_data.json_repr())
+        raise RuntimeError(f"invalid id '{id}'")
+    except Exception as e:
+        return pycmd_result_error(repr(e))
 
 init_gui()
 
 # required for collection to be fully initialized
-gui_hooks.main_window_did_init.append(optional_popup)
+# TODO: work with versions 2.1.54 and under, when profile is not loaded yet.
+# Alternatively, bump min version to 2.1.60???
+gui_hooks.profile_did_open.append(optional_popup)
 
+gui_hooks.webview_did_receive_js_message.append(handle_pycmd_message)

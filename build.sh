@@ -15,3 +15,4 @@ cp -r ../jp-mining-note/media .
 cp -r ../jp-mining-note/all_versions .
 cp -r ../jp-mining-note/version.txt .
 
+cp ../kanjivg/kanjivg.db .
