@@ -241,7 +241,7 @@ def run_batch():
 
         def batch_op():
             # code copied from batch main()
-            time.sleep(1)  # to ensure the popup is shown properly?
+            #time.sleep(1)  # to ensure the popup is shown properly?
             func_args = vars(args)
             func = func_args.pop("func")
             return func(**func_args)
