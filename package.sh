@@ -5,8 +5,10 @@
 # OR
 # ./package.sh VERSION --dev
 
+# TODO: add kanji.db to the list of files when supported
+
 ./clean.sh
-zip -r ./jpmn-manager.ankiaddon __init__.py version.txt data/ jp-mining-note/ media/ tools/*.py user_files/.placeholder "all_versions/$1-jpmn_example_cards.apkg" config.json kanjivg.db kanji.py
+zip -r ./jpmn-manager.ankiaddon __init__.py version.txt data/ jp-mining-note/ media/ tools/*.py user_files/.placeholder "all_versions/$1-jpmn_example_cards.apkg" config.json kanji.py
 
 if [[ "$2" == "--dev" ]]; then
     # update zip with manifest
